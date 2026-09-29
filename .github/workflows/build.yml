@@ -10,49 +10,23 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install System Dependencies
+      - name: Install Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            ffmpeg \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libportmidi-dev \
-            libswscale-dev \
-            libavformat-dev \
-            libavcodec-dev \
-            zlib1g-dev \
-            openjdk-17-jdk \
-            zip \
-            unzip \
-            autoconf \
-            libtool \
-            pkg-config \
-            cmake \
-            ldnsutils
-
-      - name: Install Buildozer & Specific Cython
-        run: |
+          sudo apt update && sudo apt install -y openjdk-17-jdk git zip unzip autoconf libtool pkg-config cmake zlib1g-dev libsdl2-dev
           python -m pip install --upgrade pip
           pip install "cython==0.29.33" "buildozer==1.5.0"
 
-      - name: Build APK with Buildozer
-        run: |
-          yes | buildozer android debug
+      - name: Build APK
+        run: yes | buildozer android debug
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
