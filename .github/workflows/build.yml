@@ -1,33 +1,37 @@
-name: Build and Test
+name: Build APK
 
-# Menentukan kapan workflow ini akan dijalankan (trigger)
 on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+workflow_dispatch:
 
-# Kumpulan pekerjaan yang akan dijalankan
 jobs:
-  build:
-    # Menentukan sistem operasi runner
-    runs-on: ubuntu-latest
+build:
+runs-on: ubuntu-22.04
 
-    steps:
-      # 1. Mengambil kode dari repository
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+steps:  
+  - name: Checkout  
+    uses: actions/checkout@v4  
 
-      # 2. Menyiapkan lingkungan (misalnya Node.js)
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+  - name: Set up Python  
+    uses: actions/setup-python@v5  
+    with:  
+      python-version: "3.11"  
 
-      # 3. Menginstal dependensi proyek
-      - name: Install Dependencies
-        run: npm install
+  - name: Install dependencies  
+    run: |  
+      sudo apt-get update  
+      sudo apt-get install -y \  
+        git zip unzip openjdk-17-jdk \  
+        autoconf libtool pkg-config \  
+        zlib1g-dev libncurses5-dev libncursesw5-dev \  
+        libtinfo5 cmake libffi-dev libssl-dev  
+      python -m pip install --upgrade pip  
+      pip install buildozer cython==0.29.36  
 
-      # 4. Menjalankan proses build atau testing
-      - name: Run Build
-        run: npm run build
+  - name: Build APK  
+    run: buildozer android debug  
+
+  - name: Upload APK  
+    uses: actions/upload-artifact@v4  
+    with:  
+      name: A-tempek-APK  
+      path: bin/*.apk
