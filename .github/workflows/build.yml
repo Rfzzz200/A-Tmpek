@@ -1,59 +1,33 @@
-name: Build Android APK
+name: Build and Test
 
+# Menentukan kapan workflow ini akan dijalankan (trigger)
 on:
-  workflow_dispatch:
   push:
     branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
+# Kumpulan pekerjaan yang akan dijalankan
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    # Menentukan sistem operasi runner
+    runs-on: ubuntu-latest
 
     steps:
+      # 1. Mengambil kode dari repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # 2. Menyiapkan lingkungan (misalnya Node.js)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.10'
+          node-version: '20'
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            ffmpeg \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libportmidi-dev \
-            libswscale-dev \
-            libavformat-dev \
-            libavcodec-dev \
-            zlib1g-dev \
-            openjdk-17-jdk \
-            zip \
-            unzip \
-            autoconf \
-            libtool \
-            pkg-config \
-            cmake
+      # 3. Menginstal dependensi proyek
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Install Buildozer & Fixed Cython
-        run: |
-          pip install --upgrade pip
-          pip install "cython==0.29.33" buildozer
-
-      - name: Build APK with Buildozer
-        run: |
-          yes | buildozer android debug
-
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: bin/*.apk
-          
+      # 4. Menjalankan proses build atau testing
+      - name: Run Build
+        run: npm run build
